@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CSE Manual Price Portfolio</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 8px; border: 1px solid #ccc; text-align: center; }
+    th { background: #f2f2f2; }
+    .profit { color: green; font-weight: bold; }
+    .loss { color: red; font-weight: bold; }
+    .btn { padding: 8px 15px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .btn:hover { background: #0056b3; }
+  </style>
+</head>
+<body>
+
+<h2>CSE Portfolio (Manual Market Price)</h2>
+
+<button class="btn" onclick="addRow()">Add Stock</button>
+<button class="btn" onclick="calcPortfolio()">Calculate Portfolio</button>
+
+<table id="portfolio">
+  <tr>
+    <th>Stock</th>
+    <th>Qty</th>
+    <th>Buy Price</th>
+    <th>Market Price (Manual)</th>
+    <th>Initial Cost</th>
+    <th>Total Buy Cost (+1.12%)</th>
+    <th>Sell Value</th>
+    <th>Net Sell Value (-1.12%)</th>
+    <th>Break-even</th>
+    <th>Profit</th>
+  </tr>
+</table>
+
+<h3>Total Portfolio Profit: <span id="totalProfit">0</span></h3>
+
+<script>
+function addRow() {
+  const table = document.getElementById("portfolio");
+  const row = table.insertRow(-1);
+
+  row.innerHTML = `
+    <td><input type="text" placeholder="HAYC"></td>
+    <td><input type="number" value="100"></td>
+    <td><input type="number" value="100" step="0.01"></td>
+    <td><input type="number" value="120" step="0.01"></td>
+    <td class="initialCost">0</td>
+    <td class="totalBuy">0</td>
+    <td class="sellValue">0</td>
+    <td class="netSell">0</td>
+    <td class="breakEven">0</td>
+    <td class="profit">0</td>
+  `;
+}
+
+function calcPortfolio() {
+  const rows = document.querySelectorAll("#portfolio tr");
+  let totalProfit = 0;
+
+  for (let i = 1; i < rows.length; i++) {
+    const cells = rows[i].querySelectorAll("td");
+    const qty = parseFloat(cells[1].querySelector("input").value || 0);
+    const buy = parseFloat(cells[2].querySelector("input").value || 0);
+    const market = parseFloat(cells[3].querySelector("input").value || 0);
+
+    if (qty <= 0 || buy <= 0 || market <= 0) continue;
+
+    const initialCost = qty * buy;
+    const totalBuy = initialCost * 1.0112;
+    const sellValue = qty * market;
+    const netSell = sellValue * 0.9888;
+    const breakEven = (buy * 1.0112) / 0.9888;
+    const profit = netSell - totalBuy;
+
+    cells[4].textContent = initialCost.toFixed(2);
+    cells[5].textContent = totalBuy.toFixed(2);
+    cells[6].textContent = sellValue.toFixed(2);
+    cells[7].textContent = netSell.toFixed(2);
+    cells[8].textContent = breakEven.toFixed(2);
+
+    cells[9].textContent = profit.toFixed(2);
+    cells[9].className = profit >= 0 ? "profit" : "loss";
+
+    totalProfit += profit;
+  }
+
+  document.getElementById("totalProfit").textContent = totalProfit.toFixed(2);
+  document.getElementById("totalProfit").style.color = totalProfit >= 0 ? "green" : "red";
+}
+
+// Add first row automatically
+addRow();
+</script>
+
+</body>
+</html>
